@@ -1,9 +1,10 @@
 {
   "name": "vscode-nuget-gallery",
   "displayName": "NuGet Gallery",
-  "publisher": "patcx",
+  "publisher": "canacar",
   "description": "The NuGet Gallery extension streamlines the process of installing and uninstalling NuGet packages, making it more efficient and user-friendly.",
   "version": "1.2.6",
+  "author": "can acar",
   "license": "MIT",
   "icon": "docs/images/icon.png",
   "sponsor": {

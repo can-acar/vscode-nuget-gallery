@@ -3,6 +3,7 @@ import { FASTElement, css, customElement, html, observable, repeat } from "@micr
 import codicon from "@/web/styles/codicon.css";
 import { Configuration } from "../registrations";
 import lodash from "lodash";
+import { ProjectViewModel } from "../types";
 
 const template = html<SearchBar>`
   <div class="search-bar">
@@ -18,6 +19,20 @@ const template = html<SearchBar>`
       </vscode-button>
     </div>
     <div class="search-bar-right">
+      <vscode-dropdown
+        class="project-dropdown"
+        :value=${(x) => x.selectedProjectPath}
+        @change=${(x, c) =>
+          x.SelectProject((c.event.target as HTMLInputElement).value)}
+      >
+        <vscode-option value="">All</vscode-option>
+        ${repeat(
+          (x) => x.projects,
+          html<ProjectViewModel>`
+            <vscode-option :value="${(x) => x.Path}">${(x) => x.Name}</vscode-option>
+          `
+        )}
+      </vscode-dropdown>
       <vscode-dropdown
         :value=${(x) => x.selectedSourceUrl}
         @change=${(x, c) => x.SelectSource((c.event.target as HTMLInputElement).value)}
@@ -55,6 +70,12 @@ const styles = css`
     .search-bar-right {
       display: flex;
       gap: 10px;
+
+      .project-dropdown {
+        min-width: 180px;
+        width: 28vw;
+        max-width: 440px;
+      }
     }
   }
 `;
@@ -75,6 +96,8 @@ export class SearchBar extends FASTElement {
   delayedPackagesLoader = lodash.debounce(() => this.EmitFilterChangedEvent(), 500);
   @observable prerelase: boolean = true;
   @observable filterQuery: string = "";
+  @observable projects: Array<ProjectViewModel> = [];
+  @observable selectedProjectPath: string = "";
   @observable selectedSourceUrl: string = "";
 
   connectedCallback(): void {
@@ -96,6 +119,11 @@ export class SearchBar extends FASTElement {
   SelectSource(url: string) {
     this.selectedSourceUrl = url;
     this.EmitFilterChangedEvent();
+  }
+
+  SelectProject(projectPath: string) {
+    this.selectedProjectPath = projectPath;
+    this.$emit("project-selected", projectPath);
   }
 
   ReloadClicked() {

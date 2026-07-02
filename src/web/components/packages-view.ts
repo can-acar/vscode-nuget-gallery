@@ -17,16 +17,25 @@ import {
   GET_PACKAGE,
   GET_PACKAGES,
   GET_PROJECTS,
+  UPDATE_PROJECT,
 } from "@/common/messaging/core/commands";
 import codicon from "@/web/styles/codicon.css";
 import { scrollableBase } from "@/web/styles/base.css";
-import { PackageViewModel, ProjectViewModel } from "../types";
+import {
+  PackageViewModel,
+  ProjectPackageViewModel,
+  ProjectViewModel,
+} from "../types";
 import { FilterEvent } from "./search-bar";
 
 const template = html<PackagesView>`
   <div class="container">
     <div class="col" id="packages">
       <search-bar
+        :projects=${(x) => x.projects}
+        :selectedProjectPath=${(x) => x.selectedProjectPath}
+        @project-selected=${(x, e) =>
+          x.SelectProject((e.event as CustomEvent<string>).detail)}
         @reload-invoked=${(x) => x.ReloadInvoked()}
         @filter-changed=${(x, e) =>
           x.UpdatePackagesFilters((e.event as CustomEvent<FilterEvent>).detail)}
@@ -109,23 +118,57 @@ const template = html<PackagesView>`
                     html<PackagesView>`${(x) => x.selectedPackage?.Name}`
                   )}
                 </span>
-                <div class="version-selector">
-                  <vscode-dropdown
-                    :value=${(x) => x.selectedVersion}
-                    @change=${(x, c) =>
-                      (x.selectedVersion = (c.event.target as any).value)}
-                  >
-                    ${repeat(
-                      (x) => x.selectedPackage?.Versions || [],
-                      html<string>` <vscode-option>${(x) => x}</vscode-option> `
-                    )}
-                  </vscode-dropdown>
-                  <vscode-button
-                    appearance="icon"
-                    @click=${(x) => x.LoadProjects()}
-                  >
-                    <span class="codicon codicon-refresh"></span>
-                  </vscode-button>
+                <div class="package-controls">
+                  <div class="package-actions">
+                    <vscode-button
+                      class="package-action package-action-install"
+                      appearance="icon"
+                      title="Install package"
+                      aria-label="Install package"
+                      ?disabled=${(x) => !x.CanInstallSelectedPackage}
+                      @click=${(x) => x.UpdateSelectedProjects("INSTALL")}
+                    >
+                      <span class="codicon codicon-diff-added"></span>
+                    </vscode-button>
+                    <vscode-button
+                      class="package-action package-action-update"
+                      appearance="icon"
+                      title="Update package version"
+                      aria-label="Update package version"
+                      ?disabled=${(x) => !x.CanUpdateSelectedPackage}
+                      @click=${(x) => x.UpdateSelectedProjects("UPDATE")}
+                    >
+                      <span class="codicon codicon-arrow-circle-up"></span>
+                    </vscode-button>
+                    <vscode-button
+                      class="package-action package-action-uninstall"
+                      appearance="icon"
+                      title="Uninstall package"
+                      aria-label="Uninstall package"
+                      ?disabled=${(x) => !x.CanUninstallSelectedPackage}
+                      @click=${(x) => x.UpdateSelectedProjects("UNINSTALL")}
+                    >
+                      <span class="codicon codicon-diff-removed"></span>
+                    </vscode-button>
+                  </div>
+                  <div class="version-selector">
+                    <vscode-dropdown
+                      :value=${(x) => x.selectedVersion}
+                      @change=${(x, c) =>
+                        (x.selectedVersion = (c.event.target as any).value)}
+                    >
+                      ${repeat(
+                        (x) => x.selectedPackage?.Versions || [],
+                        html<string>` <vscode-option>${(x) => x}</vscode-option> `
+                      )}
+                    </vscode-dropdown>
+                    <vscode-button
+                      appearance="icon"
+                      @click=${(x) => x.LoadProjects()}
+                    >
+                      <span class="codicon codicon-refresh"></span>
+                    </vscode-button>
+                  </div>
                 </div>
               </div>
               <div class="projects-panel-container">
@@ -309,7 +352,52 @@ const styles = css`
           }
         }
 
+        .package-controls {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          text-wrap: nowrap;
+        }
+
+        .package-actions {
+          display: flex;
+          gap: 5px;
+          align-items: center;
+        }
+
+        .package-action {
+          width: 28px;
+          min-width: 28px;
+          height: 22px;
+          padding: 0;
+          border: 1px solid currentColor;
+          border-radius: 3px;
+
+          span {
+            color: currentColor;
+          }
+        }
+
+        .package-action[disabled] {
+          opacity: 0.4;
+        }
+
+        .package-action-install {
+          color: var(--vscode-charts-blue, #3794ff);
+        }
+
+        .package-action-update {
+          color: var(--vscode-charts-yellow, #cca700);
+        }
+
+        .package-action-uninstall {
+          color: var(--vscode-charts-red, #f14c4c);
+        }
+
         .version-selector {
+          display: flex;
+          gap: 4px;
+          align-items: center;
           text-wrap: nowrap;
           min-width: 128px;
         }
@@ -336,6 +424,7 @@ const styles = css`
 const PACKAGE_FETCH_TAKE = 50;
 const PACKAGE_CONTAINER_SCROLL_MARGIN = 196;
 const NUGET_ORG_PREFIX = "https://api.nuget.org";
+type PackageProjectAction = "INSTALL" | "UPDATE" | "UNINSTALL";
 
 @customElement({
   name: "packages-view",
@@ -350,10 +439,12 @@ export class PackagesView extends FASTElement {
   @IMediator mediator!: IMediator;
   @Configuration configuration!: Configuration;
   @observable projects: Array<ProjectViewModel> = [];
+  @observable selectedProjectPath: string = "";
   @observable selectedVersion: string = "";
   @observable selectedPackage: PackageViewModel | null = null;
   @observable packages: Array<PackageViewModel> = [];
   @observable projectsPackages: Array<PackageViewModel> = [];
+  @observable packageActionInProgress: boolean = false;
   @observable filters: FilterEvent = {
     Prerelease: true,
     Query: "",
@@ -412,6 +503,105 @@ export class PackagesView extends FASTElement {
         (x) => x.Version == this.selectedVersion
       )[0].Id ?? ""
     );
+  }
+
+  @volatile
+  get CanInstallSelectedPackage() {
+    return (
+      !this.packageActionInProgress &&
+      this.GetActionProjects("INSTALL").length > 0
+    );
+  }
+
+  @volatile
+  get CanUpdateSelectedPackage() {
+    return (
+      !this.packageActionInProgress &&
+      this.GetActionProjects("UPDATE").length > 0
+    );
+  }
+
+  @volatile
+  get CanUninstallSelectedPackage() {
+    return (
+      !this.packageActionInProgress &&
+      this.GetActionProjects("UNINSTALL").length > 0
+    );
+  }
+
+  SelectProject(projectPath: string) {
+    this.selectedProjectPath = projectPath;
+  }
+
+  private GetScopedProjects() {
+    if (!this.selectedProjectPath) return this.projects;
+    return this.projects.filter((x) => x.Path == this.selectedProjectPath);
+  }
+
+  private GetProjectPackage(project: ProjectViewModel) {
+    return project.Packages.find((x) => x.Id == this.selectedPackage?.Name);
+  }
+
+  private CanApplyAction(
+    project: ProjectViewModel,
+    action: PackageProjectAction
+  ) {
+    if (!this.selectedPackage) return false;
+    if (action != "UNINSTALL" && !this.selectedVersion) return false;
+
+    let projectPackage = this.GetProjectPackage(project);
+    if (action == "INSTALL") return projectPackage == undefined;
+    if (action == "UPDATE")
+      return (
+        projectPackage != undefined &&
+        projectPackage.Version != this.selectedVersion &&
+        projectPackage.Version != undefined
+      );
+
+    return projectPackage != undefined;
+  }
+
+  private GetActionProjects(action: PackageProjectAction) {
+    return this.GetScopedProjects().filter((x) =>
+      this.CanApplyAction(x, action)
+    );
+  }
+
+  async UpdateSelectedProjects(action: PackageProjectAction) {
+    if (!this.selectedPackage || this.packageActionInProgress) return;
+
+    let projects = this.GetActionProjects(action);
+    if (projects.length < 1) return;
+
+    let updateType: UpdateType =
+      action == "UNINSTALL" ? "UNINSTALL" : "INSTALL";
+    let packageId = this.selectedPackage.Name;
+    let packageVersion = this.selectedVersion;
+
+    this.packageActionInProgress = true;
+    try {
+      for (let project of projects) {
+        let request: UpdateProjectRequest = {
+          Type: updateType,
+          ProjectPath: project.Path,
+          PackageId: packageId,
+        };
+
+        if (updateType != "UNINSTALL") request.Version = packageVersion;
+
+        let result = await this.mediator.PublishAsync<
+          UpdateProjectRequest,
+          UpdateProjectResponse
+        >(UPDATE_PROJECT, request);
+        project.Packages = result.Project.Packages.map(
+          (x) => new ProjectPackageViewModel(x)
+        );
+      }
+
+      this.LoadProjectsPackages();
+    } finally {
+      this.packageActionInProgress = false;
+    }
   }
 
   LoadProjectsPackages() {
@@ -587,6 +777,11 @@ export class PackagesView extends FASTElement {
     >(GET_PROJECTS, {});
 
     this.projects = result.Projects.map((x) => new ProjectViewModel(x));
+    if (
+      this.selectedProjectPath &&
+      !this.projects.some((x) => x.Path == this.selectedProjectPath)
+    )
+      this.selectedProjectPath = "";
     this.LoadProjectsPackages();
   }
 }
