@@ -14,7 +14,7 @@ class NuGetApiFactory {
     if (url in this._sourceApiCollection) return this._sourceApiCollection[url];
 
     let credentialProviderFolder =
-      vscode.workspace.getConfiguration("NugetGallery").get<string>("credentialProviderFolder") ??
+      vscode.workspace.getConfiguration("CanNugetGallery").get<string>("credentialProviderFolder") ??
       "";
 
     let credentials: Credentials | undefined = undefined;

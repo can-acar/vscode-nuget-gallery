@@ -32,8 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
   const telemetry = new Telemetry(context);
   telemetry.sendEvent("activated");
 
-  let previousVersion: string | undefined = context.globalState.get("NugetGallery.version");
-  context.globalState.update("NugetGallery.version", context.extension.packageJSON.version);
+  let previousVersion: string | undefined = context.globalState.get("CanNugetGallery.version");
+  context.globalState.update("CanNugetGallery.version", context.extension.packageJSON.version);
   if (previousVersion == undefined) {
     telemetry.sendEvent("installed");
   } else if (previousVersion != context.extension.packageJSON.version)
@@ -41,26 +41,21 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(telemetry);
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider("nuget.gallery.view", provider, {
+    vscode.window.registerWebviewViewProvider("canacar.nuget.gallery.view", provider, {
       webviewOptions: {
         retainContextWhenHidden: true,
       },
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("nuget-gallery.openSettings", async () => {
+    vscode.commands.registerCommand("canacar-nuget-gallery.openSettings", async () => {
       await mediator?.PublishAsync<ShowSettingsRequest, ShowSettingsResponse>(SHOW_SETTINGS, {});
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("nuget-gallery.sponsor", async () => {
-      vscode.env.openExternal(vscode.Uri.parse("https://github.com/sponsors/pcislo"));
-    })
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand("nuget-gallery.reportProblem", async () => {
+    vscode.commands.registerCommand("canacar-nuget-gallery.reportProblem", async () => {
       vscode.env.openExternal(
-        vscode.Uri.parse("https://github.com/pcislo/vscode-nuget-gallery/issues/new")
+        vscode.Uri.parse("https://github.com/can-acar/vscode-nuget-gallery/issues/new")
       );
     })
   );
@@ -103,10 +98,10 @@ class NugetViewProvider implements vscode.WebviewViewProvider {
       <meta name="viewport" content="width=device-width,initial-scale=1.0">
       <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-${nonceValue}';">
       <link rel="stylesheet" type="text/css" href="${webCssSrc}"/>
-		  <title>NuGet Gallery</title>
+		  <title>Can NuGet Gallery</title>
 		</head>
 		<body>
-		  <vscode-nuget-gallery></vscode-nuget-gallery>
+		  <canacar-nuget-gallery></canacar-nuget-gallery>
 		  <script type="module" nonce="${nonceValue}" src="${webJsSrc}"></script>
 		</body>
 	  </html>

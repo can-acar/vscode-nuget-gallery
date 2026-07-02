@@ -4,13 +4,13 @@ import NuGetConfigParser from "../utilities/nuget-config-parser";
 
 export default class GetConfiguration implements IRequestHandler<GetConfigurationRequest, GetConfigurationResponse> {
   async HandleAsync(request: GetConfigurationRequest): Promise<GetConfigurationResponse> {
-    let config = vscode.workspace.getConfiguration("NugetGallery");
+    let config = vscode.workspace.getConfiguration("CanNugetGallery");
     try {
       await config.update("credentialProviderFolder", undefined, vscode.ConfigurationTarget.Workspace);
       await config.update("sources", undefined, vscode.ConfigurationTarget.Workspace);
       await config.update("skipRestore", undefined, vscode.ConfigurationTarget.Workspace);
     } catch {}
-    config = vscode.workspace.getConfiguration("NugetGallery");
+    config = vscode.workspace.getConfiguration("CanNugetGallery");
 
     let settingsSources: Array<Source> =
       config

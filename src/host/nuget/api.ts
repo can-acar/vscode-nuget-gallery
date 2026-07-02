@@ -286,7 +286,7 @@ export default class NuGetApi {
         let interactiveLoginTask = new vscode.Task(
           { type: "nuget", task: `CredentialProvider.Microsoft` },
           vscode.TaskScope.Workspace,
-          "nuget-gallery-credentials",
+          "canacar-nuget-gallery-credentials",
           "CredentialProvider.Microsoft",
           new vscode.ProcessExecution(command, ["-C", "False", "-R", "-U", this._url])
         );

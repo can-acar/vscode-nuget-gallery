@@ -1,15 +1,12 @@
 {
-  "name": "vscode-nuget-gallery",
-  "displayName": "NuGet Gallery",
+  "name": "canacar-nuget-gallery",
+  "displayName": "Can NuGet Gallery",
   "publisher": "canacar",
-  "description": "The NuGet Gallery extension streamlines the process of installing and uninstalling NuGet packages, making it more efficient and user-friendly.",
-  "version": "1.2.6",
+  "description": "Can NuGet Gallery streamlines installing, updating, and uninstalling NuGet packages in Visual Studio Code.",
+  "version": "1.0.0",
   "author": "can acar",
   "license": "MIT",
   "icon": "docs/images/icon.png",
-  "sponsor": {
-    "url": "https://github.com/sponsors/pcislo"
-  },
   "engines": {
     "vscode": "^1.87.0"
   },
@@ -17,84 +14,73 @@
     "Other"
   ],
   "bugs": {
-    "url": "https://github.com/pcislo/vscode-nuget-gallery/issues",
-    "email": "patrykcislo@gmail.com"
+    "url": "https://github.com/can-acar/vscode-nuget-gallery/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pcislo/vscode-nuget-gallery.git"
+    "url": "https://github.com/can-acar/vscode-nuget-gallery.git"
   },
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "nuget-gallery.openSettings",
+        "command": "canacar-nuget-gallery.openSettings",
         "title": "Settings",
         "icon": "$(extensions-manage)"
       },
       {
-        "command": "nuget-gallery.reportProblem",
+        "command": "canacar-nuget-gallery.reportProblem",
         "title": "Report Problem",
         "icon": "$(report)"
-      },
-      {
-        "command": "nuget-gallery.sponsor",
-        "title": "Sponsor Extension",
-        "icon": "$(heart)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "nuget-gallery.sponsor",
-          "when": "view == nuget.gallery.view",
+          "command": "canacar-nuget-gallery.reportProblem",
+          "when": "view == canacar.nuget.gallery.view",
           "group": "navigation@1"
         },
         {
-          "command": "nuget-gallery.reportProblem",
-          "when": "view == nuget.gallery.view",
+          "command": "canacar-nuget-gallery.openSettings",
+          "when": "view == canacar.nuget.gallery.view",
           "group": "navigation@2"
-        },
-        {
-          "command": "nuget-gallery.openSettings",
-          "when": "view == nuget.gallery.view",
-          "group": "navigation@3"
         }
       ]
     },
     "viewsContainers": {
       "panel": [
         {
-          "id": "nugetGalleryView",
+          "id": "canacarNugetGalleryView",
           "title": "NuGet",
           "icon": "resources/nuget.svg"
         }
       ]
     },
     "views": {
-      "nugetGalleryView": [
+      "canacarNugetGalleryView": [
         {
           "type": "webview",
-          "id": "nuget.gallery.view",
+          "id": "canacar.nuget.gallery.view",
           "name": "NuGet"
         }
       ]
     },
     "configuration": {
-      "title": "NuGet Gallery",
+      "title": "Can NuGet Gallery",
       "properties": {
-        "NugetGallery.skipRestore": {
+        "CanNugetGallery.skipRestore": {
           "type": "boolean",
           "default": "false",
           "description": "Skip performing a restore preview and compatibility check"
         },
-        "NugetGallery.credentialProviderFolder": {
+        "CanNugetGallery.credentialProviderFolder": {
           "type": "string",
           "default": "{user-profile}/.nuget/plugins/netcore/CredentialProvider.Microsoft",
           "description": "Folder containing CredentialProvider.Microsoft"
         },
-        "NugetGallery.sources": {
+        "CanNugetGallery.sources": {
           "type": "array",
           "items": {
             "type": "string"

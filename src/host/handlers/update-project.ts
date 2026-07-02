@@ -5,7 +5,7 @@ import TaskExecutor from "../utilities/task-executor";
 
 export default class UpdateProject implements IRequestHandler<UpdateProjectRequest, UpdateProjectResponse> {
   async HandleAsync(request: UpdateProjectRequest): Promise<UpdateProjectResponse> {
-    let skipRestore = vscode.workspace.getConfiguration("NugetGallery").get<string>("skipRestore") ?? "";
+    let skipRestore = vscode.workspace.getConfiguration("CanNugetGallery").get<string>("skipRestore") ?? "";
     let command = request.Type == "UNINSTALL" ? "remove" : "add";
     let args: Array<string> = [command, request.ProjectPath.replace(/\\/g, "/"), "package", request.PackageId];
     if (request.Type !== "UNINSTALL") {
@@ -19,7 +19,7 @@ export default class UpdateProject implements IRequestHandler<UpdateProjectReque
     let task = new vscode.Task(
       { type: "dotnet", task: `dotnet add/remove package` },
       vscode.TaskScope.Workspace,
-      "nuget-gallery",
+      "canacar-nuget-gallery",
       "dotnet",
       new vscode.ShellExecution("dotnet", args)
     );

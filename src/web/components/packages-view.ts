@@ -120,36 +120,36 @@ const template = html<PackagesView>`
                 </span>
                 <div class="package-controls">
                   <div class="package-actions">
-                    <vscode-button
+                    <button
+                      type="button"
                       class="package-action package-action-install"
-                      appearance="icon"
                       title="Install package"
                       aria-label="Install package"
                       ?disabled=${(x) => !x.CanInstallSelectedPackage}
                       @click=${(x) => x.UpdateSelectedProjects("INSTALL")}
                     >
                       <span class="codicon codicon-diff-added"></span>
-                    </vscode-button>
-                    <vscode-button
+                    </button>
+                    <button
+                      type="button"
                       class="package-action package-action-update"
-                      appearance="icon"
                       title="Update package version"
                       aria-label="Update package version"
                       ?disabled=${(x) => !x.CanUpdateSelectedPackage}
                       @click=${(x) => x.UpdateSelectedProjects("UPDATE")}
                     >
                       <span class="codicon codicon-arrow-circle-up"></span>
-                    </vscode-button>
-                    <vscode-button
+                    </button>
+                    <button
+                      type="button"
                       class="package-action package-action-uninstall"
-                      appearance="icon"
                       title="Uninstall package"
                       aria-label="Uninstall package"
                       ?disabled=${(x) => !x.CanUninstallSelectedPackage}
                       @click=${(x) => x.UpdateSelectedProjects("UNINSTALL")}
                     >
                       <span class="codicon codicon-diff-removed"></span>
-                    </vscode-button>
+                    </button>
                   </div>
                   <div class="version-selector">
                     <vscode-dropdown
@@ -370,16 +370,32 @@ const styles = css`
           min-width: 28px;
           height: 22px;
           padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
           border: 1px solid currentColor;
           border-radius: 3px;
+          cursor: pointer;
 
           span {
+            font-size: 14px;
             color: currentColor;
           }
         }
 
-        .package-action[disabled] {
-          opacity: 0.4;
+        .package-action:hover:not(:disabled) {
+          background-color: color-mix(in srgb, currentColor 18%, transparent);
+        }
+
+        .package-action:focus-visible {
+          outline: 1px solid var(--vscode-focusBorder);
+          outline-offset: 2px;
+        }
+
+        .package-action:disabled {
+          cursor: default;
+          opacity: 0.55;
         }
 
         .package-action-install {

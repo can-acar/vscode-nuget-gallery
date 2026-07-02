@@ -12,5 +12,6 @@ vsc-extension-quickstart.md
 **/babel.config.js
 **/package-lock.json
 **/yarn.lock
+bun.lock
 **/vue.config.js
 azure-pipelines.yml 

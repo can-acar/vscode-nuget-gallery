@@ -6,7 +6,7 @@ export default class UpdateConfiguration
   implements IRequestHandler<UpdateConfigurationRequest, UpdateConfigurationResponse>
 {
   async HandleAsync(request: UpdateConfigurationRequest): Promise<UpdateConfigurationResponse> {
-    let config = vscode.workspace.getConfiguration("NugetGallery");
+    let config = vscode.workspace.getConfiguration("CanNugetGallery");
 
     let sources = request.Configuration.Sources
       .filter((x) => !x.IsReadOnly)

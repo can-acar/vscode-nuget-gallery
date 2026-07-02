@@ -1,6 +1,6 @@
 import { Observable } from "@microsoft/fast-element";
 
-type Routes = "BROWSE" | "SETTINGS";
+type Routes = "BROWSE" | "SOURCES" | "SETTINGS";
 
 export default class Router {
   private route: Routes = "BROWSE";
