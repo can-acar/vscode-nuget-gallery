@@ -178,7 +178,7 @@ const template = html<PackagesView>`
                   :packageVersionUrl=${(x) => x.PackageVersionUrl}
                   :packageId=${(x) => x.selectedPackage?.Name ?? ""}
                   :version=${(x) => x.selectedVersion}
-                  :source=${(x) => x.filters.SourceUrl}
+                  :source=${(x) => x.SelectedPackageSourceUrl}
                 ></package-details>
                 <div class="separator"></div>
                 ${when(
@@ -204,7 +204,7 @@ const template = html<PackagesView>`
                           :source=${(
                             x,
                             c: ExecutionContext<PackagesView, any>
-                          ) => c.parent.filters.SourceUrl}
+                          ) => c.parent.SelectedPackageSourceUrl}
                         >
                         </project-row>
                       `
@@ -470,8 +470,6 @@ export class PackagesView extends FASTElement {
         return gutter;
       },
     });
-    this.filters.SourceUrl =
-      this.configuration.Configuration?.Sources[0].Url ?? "";
     this.LoadPackages();
     this.LoadProjects();
   }
@@ -482,9 +480,19 @@ export class PackagesView extends FASTElement {
 
   @volatile
   get NugetOrgPackageUrl() {
-    if (this.filters.SourceUrl.startsWith(NUGET_ORG_PREFIX))
+    if (this.SelectedPackageSourceUrl.startsWith(NUGET_ORG_PREFIX))
       return `https://www.nuget.org/packages/${this.selectedPackage?.Name}/${this.selectedVersion}`;
     else return null;
+  }
+
+  @volatile
+  get SelectedPackageSourceUrl() {
+    return (
+      this.filters.SourceUrl ||
+      this.selectedPackage?.SourceUrl ||
+      this.configuration.Configuration?.Sources[0]?.Url ||
+      ""
+    );
   }
 
   @volatile
@@ -585,7 +593,7 @@ export class PackagesView extends FASTElement {
           Type: updateType,
           ProjectPath: project.Path,
           PackageId: packageId,
-          SourceUrl: this.filters.SourceUrl,
+          SourceUrl: this.SelectedPackageSourceUrl,
         };
 
         if (updateType != "UNINSTALL") request.Version = packageVersion;
@@ -661,14 +669,7 @@ export class PackagesView extends FASTElement {
   }
 
   async UpdatePackage(projectPackage: PackageViewModel) {
-    let result = await this.mediator.PublishAsync<
-      GetPackageRequest,
-      GetPackageResponse
-    >(GET_PACKAGE, {
-      Id: projectPackage.Id,
-      Url: this.filters.SourceUrl,
-      Prerelease: this.filters.Prerelease,
-    });
+    let result = await this.GetPackageFromSources(projectPackage.Id, projectPackage.SourceUrl);
 
     if (result.IsFailure || !result.Package) {
       projectPackage.Status = "Error";
@@ -699,14 +700,7 @@ export class PackagesView extends FASTElement {
       this.selectedPackage.Versions.length <= 1
     ) {
       let packageToUpdate = this.selectedPackage;
-      let result = await this.mediator.PublishAsync<
-        GetPackageRequest,
-        GetPackageResponse
-      >(GET_PACKAGE, {
-        Id: packageToUpdate.Id,
-        Url: this.filters.SourceUrl,
-        Prerelease: this.filters.Prerelease,
-      });
+      let result = await this.GetPackageFromSources(packageToUpdate.Id, packageToUpdate.SourceUrl);
 
       if (result.IsFailure || !result.Package) {
         packageToUpdate.Status = "Error";
@@ -737,6 +731,7 @@ export class PackagesView extends FASTElement {
     let _getLoadPackageRequest = () => {
       return {
         Url: this.filters.SourceUrl,
+        Sources: this.GetActiveSourceUrls(),
         Filter: this.filters.Query,
         Prerelease: this.filters.Prerelease,
         Skip: this.packagesPage * PACKAGE_FETCH_TAKE,
@@ -756,23 +751,98 @@ export class PackagesView extends FASTElement {
     let requestObject = _getLoadPackageRequest();
     this.currentLoadPackageHash = hash(requestObject);
 
-    let result = await this.mediator.PublishAsync<
-      GetPackagesRequest,
-      GetPackagesResponse
-    >(GET_PACKAGES, requestObject);
+    let results = await Promise.all(
+      this.GetActiveSourceUrls().map((sourceUrl) =>
+        this.mediator
+          .PublishAsync<GetPackagesRequest, GetPackagesResponse>(
+            GET_PACKAGES,
+            {
+              Url: sourceUrl,
+              Filter: requestObject.Filter,
+              Prerelease: requestObject.Prerelease,
+              Skip: requestObject.Skip,
+              Take: requestObject.Take,
+            }
+          )
+          .then((result) => ({ sourceUrl, result }))
+      )
+    );
+
     if (this.currentLoadPackageHash != hash(_getLoadPackageRequest())) return;
-    if (result.IsFailure) {
+    let successfulResults = results.filter((x) => !x.result.IsFailure && x.result.Packages);
+    if (successfulResults.length == 0) {
       this.packagesLoadingError = true;
+      this.packagesLoadingInProgress = false;
     } else {
-      let packagesViewModels = result.Packages!.map(
+      let packages = this.MergeSourcePackages(
+        successfulResults.flatMap(({ sourceUrl, result }) =>
+          result.Packages!.map((p) => ({
+            ...p,
+            SourceUrl: sourceUrl,
+          }))
+        )
+      );
+      let packagesViewModels = packages.map(
         (x) => new PackageViewModel(x)
       );
-      if (packagesViewModels.length < requestObject.Take)
+      let expectedTake = requestObject.Take * this.GetActiveSourceUrls().length;
+      let receivedCount = successfulResults.reduce(
+        (acc, item) => acc + (item.result.Packages?.length ?? 0),
+        0
+      );
+      if (receivedCount < expectedTake)
         this.noMorePackages = true;
       this.packages.push(...packagesViewModels);
       this.packagesPage++;
       this.packagesLoadingInProgress = false;
     }
+  }
+
+  private async GetPackageFromSources(
+    packageId: string,
+    preferredSourceUrl: string = ""
+  ): Promise<GetPackageResponse> {
+    let sourceUrls = preferredSourceUrl ? [preferredSourceUrl] : this.GetActiveSourceUrls();
+    let lastFailure: GetPackageResponse = {
+      IsFailure: true,
+      Error: {
+        Message: "Failed to fetch package",
+      },
+    };
+
+    for (let sourceUrl of sourceUrls) {
+      let result = await this.mediator.PublishAsync<
+        GetPackageRequest,
+        GetPackageResponse
+      >(GET_PACKAGE, {
+        Id: packageId,
+        Url: sourceUrl,
+        Prerelease: this.filters.Prerelease,
+      });
+
+      if (!result.IsFailure && result.Package) {
+        result.Package.SourceUrl = sourceUrl;
+        return result;
+      }
+
+      lastFailure = result;
+    }
+
+    return lastFailure;
+  }
+
+  private GetActiveSourceUrls() {
+    if (this.filters.SourceUrl) return [this.filters.SourceUrl];
+    return this.configuration.Configuration?.Sources.map((x) => x.Url) ?? [];
+  }
+
+  private MergeSourcePackages(packages: Array<Package>) {
+    let merged = new Map<string, Package>();
+    packages.forEach((item) => {
+      let key = item.Name.toLowerCase();
+      if (!merged.has(key)) merged.set(key, item);
+    });
+    return Array.from(merged.values());
   }
 
   async LoadProjects() {

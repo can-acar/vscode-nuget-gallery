@@ -6,6 +6,7 @@ type PackageViewModelStatus = "Detailed" | "MissingDetails" | "Error";
 export class PackageViewModel {
   Id: string;
   Name: string;
+  SourceUrl: string;
   Model: Package;
   private _authors: Array<string>;
   private _tags: Array<string>;
@@ -25,6 +26,7 @@ export class PackageViewModel {
     this._authors = model.Authors;
     this.Id = model.Id;
     this.Name = model.Name;
+    this.SourceUrl = model.SourceUrl ?? "";
     this.Description = model.Description;
     this.IconUrl = model.IconUrl;
     this.LicenseUrl = model.LicenseUrl;
@@ -43,6 +45,7 @@ export class PackageViewModel {
     this._authors = model.Authors;
     this.Id = model.Id;
     this.Name = model.Name;
+    this.SourceUrl = model.SourceUrl ?? this.SourceUrl;
     this.Description = model.Description;
     this.IconUrl = model.IconUrl;
     this.LicenseUrl = model.LicenseUrl;

@@ -1,6 +1,7 @@
 type Package = {
   Id: string;
   Name: string;
+  SourceUrl?: string;
   Authors: Array<string>;
   Description: string;
   IconUrl: string;

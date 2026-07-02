@@ -38,6 +38,7 @@ const template = html<SearchBar>`
         :value=${(x) => x.selectedSourceUrl}
         @change=${(x, c) => x.SelectSource((c.event.target as HTMLInputElement).value)}
       >
+        <vscode-option value="">${() => t("allSources")}</vscode-option>
         ${repeat(
           (x) => x.configuration.Configuration!.Sources,
           html<Source>` <vscode-option :value="${(x) => x.Url}">${(x) => x.Name}</vscode-option> `
@@ -103,7 +104,7 @@ export class SearchBar extends FASTElement {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.selectedSourceUrl = this.configuration.Configuration?.Sources[0].Url ?? "";
+    this.selectedSourceUrl = "";
     this.EmitFilterChangedEvent();
   }
 
