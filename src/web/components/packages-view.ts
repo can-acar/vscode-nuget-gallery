@@ -121,8 +121,8 @@ const template = html<PackagesView>`
                 </span>
                 <div class="package-controls">
                   <div class="package-actions">
-                    <button
-                      type="button"
+                    <vscode-button
+                      appearance="icon"
                       class="package-action package-action-install"
                       title="Install package"
                       aria-label="Install package"
@@ -130,9 +130,9 @@ const template = html<PackagesView>`
                       @click=${(x) => x.UpdateSelectedProjects("INSTALL")}
                     >
                       <span class="codicon codicon-diff-added"></span>
-                    </button>
-                    <button
-                      type="button"
+                    </vscode-button>
+                    <vscode-button
+                      appearance="icon"
                       class="package-action package-action-update"
                       title="Update package version"
                       aria-label="Update package version"
@@ -140,9 +140,9 @@ const template = html<PackagesView>`
                       @click=${(x) => x.UpdateSelectedProjects("UPDATE")}
                     >
                       <span class="codicon codicon-arrow-circle-up"></span>
-                    </button>
-                    <button
-                      type="button"
+                    </vscode-button>
+                    <vscode-button
+                      appearance="icon"
                       class="package-action package-action-uninstall"
                       title="Uninstall package"
                       aria-label="Uninstall package"
@@ -150,7 +150,7 @@ const template = html<PackagesView>`
                       @click=${(x) => x.UpdateSelectedProjects("UNINSTALL")}
                     >
                       <span class="codicon codicon-diff-removed"></span>
-                    </button>
+                    </vscode-button>
                   </div>
                   <div class="version-selector">
                     <vscode-dropdown
@@ -375,44 +375,21 @@ const styles = css`
           width: 28px;
           min-width: 28px;
           height: 22px;
-          padding: 0;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-          border: 1px solid currentColor;
-          border-radius: 3px;
-          cursor: pointer;
 
           span {
             font-size: 14px;
-            color: currentColor;
           }
         }
 
-        .package-action:hover:not(:disabled) {
-          background-color: color-mix(in srgb, currentColor 18%, transparent);
-        }
-
-        .package-action:focus-visible {
-          outline: 1px solid var(--vscode-focusBorder);
-          outline-offset: 2px;
-        }
-
-        .package-action:disabled {
-          cursor: default;
-          opacity: 0.55;
-        }
-
-        .package-action-install {
+        .package-action-install span {
           color: var(--vscode-charts-blue, #3794ff);
         }
 
-        .package-action-update {
+        .package-action-update span {
           color: var(--vscode-charts-yellow, #cca700);
         }
 
-        .package-action-uninstall {
+        .package-action-uninstall span {
           color: var(--vscode-charts-red, #f14c4c);
         }
 
@@ -717,7 +694,10 @@ export class PackagesView extends FASTElement {
       .forEach((x) => (x.Selected = false));
     selectedPackage.Selected = true;
     this.selectedPackage = selectedPackage;
-    if (this.selectedPackage.Status == "MissingDetails") {
+    if (
+      this.selectedPackage.Status == "MissingDetails" ||
+      this.selectedPackage.Versions.length <= 1
+    ) {
       let packageToUpdate = this.selectedPackage;
       let result = await this.mediator.PublishAsync<
         GetPackageRequest,

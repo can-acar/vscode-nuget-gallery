@@ -87,17 +87,9 @@ internal sealed class ProtocolHost
             _logger,
             _cancellationToken);
 
-        var packages = new List<PackageDto>();
-        foreach (var item in results)
-        {
-            var package = await GetPackageFromMetadataAsync(repository, item.Identity.Id);
-            if (package != null)
-            {
-                packages.Add(package);
-            }
-        }
-
-        return packages;
+        return results
+            .Select(item => MapPackage(item, new[] { item }))
+            .ToList();
     }
 
     public async Task<PackageDto> GetPackageAsync()
