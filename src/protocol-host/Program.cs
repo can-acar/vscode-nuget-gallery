@@ -161,7 +161,7 @@ internal sealed class ProtocolHost
             .ToList();
 
         var latest = versions.LastOrDefault();
-        return latest == null ? null : MapPackage(latest, versions);
+        return latest == null ? null : await MapPackageAsync(repository, latest, versions);
     }
 
     private List<PackageDto> SearchLocalPackages(string localPath)
@@ -241,7 +241,7 @@ internal sealed class ProtocolHost
                     version,
                     SplitValues(nuspec.GetAuthors()).ToList(),
                     nuspec.GetDescription() ?? string.Empty,
-                    nuspec.GetIconUrl() ?? string.Empty,
+                    ReadPackageIcon(reader, nuspec),
                     nuspec.GetLicenseUrl() ?? string.Empty,
                     nuspec.GetProjectUrl() ?? string.Empty,
                     SplitValues(nuspec.GetTags()).ToList(),
@@ -309,9 +309,118 @@ internal sealed class ProtocolHost
         }
     }
 
-    private static PackageDto MapPackage(
+    private async Task<PackageDto> MapPackageAsync(
+        SourceRepository repository,
         IPackageSearchMetadata latest,
         IReadOnlyCollection<IPackageSearchMetadata> versions)
+    {
+        var iconUrl = latest.IconUrl?.ToString() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(iconUrl))
+        {
+            iconUrl = await TryReadRemoteEmbeddedIconAsync(
+                repository,
+                latest.Identity.Id,
+                latest.Identity.Version);
+        }
+
+        return MapPackage(latest, versions, iconUrl);
+    }
+
+    private async Task<string> TryReadRemoteEmbeddedIconAsync(
+        SourceRepository repository,
+        string packageId,
+        NuGetVersion version)
+    {
+        try
+        {
+            using var cache = new SourceCacheContext();
+            var resource = await repository.GetResourceAsync<FindPackageByIdResource>(_cancellationToken);
+            await using var stream = new MemoryStream();
+            var copied = await resource.CopyNupkgToStreamAsync(
+                packageId,
+                version,
+                stream,
+                cache,
+                _logger,
+                _cancellationToken);
+
+            if (!copied)
+            {
+                return string.Empty;
+            }
+
+            stream.Position = 0;
+            using var reader = new PackageArchiveReader(stream);
+            return ReadEmbeddedIcon(reader, reader.NuspecReader);
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string ReadPackageIcon(PackageArchiveReader reader, NuspecReader nuspec)
+    {
+        var iconUrl = nuspec.GetIconUrl();
+        return string.IsNullOrWhiteSpace(iconUrl)
+            ? ReadEmbeddedIcon(reader, nuspec)
+            : iconUrl;
+    }
+
+    private static string ReadEmbeddedIcon(PackageArchiveReader reader, NuspecReader nuspec)
+    {
+        var iconPath = nuspec.GetIcon();
+        if (string.IsNullOrWhiteSpace(iconPath))
+        {
+            return string.Empty;
+        }
+
+        var normalizedIconPath = NormalizePackagePath(iconPath);
+        var packageFile = reader.GetFiles()
+            .FirstOrDefault(x =>
+                string.Equals(
+                    NormalizePackagePath(x),
+                    normalizedIconPath,
+                    StringComparison.OrdinalIgnoreCase));
+
+        if (packageFile == null)
+        {
+            return string.Empty;
+        }
+
+        using var iconStream = reader.GetStream(packageFile);
+        using var buffer = new MemoryStream();
+        iconStream.CopyTo(buffer);
+        if (buffer.Length == 0 || buffer.Length > 1024 * 1024)
+        {
+            return string.Empty;
+        }
+
+        return $"data:{GetIconContentType(packageFile)};base64,{Convert.ToBase64String(buffer.ToArray())}";
+    }
+
+    private static string NormalizePackagePath(string path)
+    {
+        return path.Replace('\\', '/').TrimStart('/');
+    }
+
+    private static string GetIconContentType(string path)
+    {
+        return Path.GetExtension(path).ToLowerInvariant() switch
+        {
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".svg" => "image/svg+xml",
+            ".gif" => "image/gif",
+            ".ico" => "image/x-icon",
+            _ => "application/octet-stream"
+        };
+    }
+
+    private static PackageDto MapPackage(
+        IPackageSearchMetadata latest,
+        IReadOnlyCollection<IPackageSearchMetadata> versions,
+        string? iconUrlOverride = null)
     {
         return new PackageDto
         {
@@ -319,7 +428,7 @@ internal sealed class ProtocolHost
             Name = latest.Identity.Id,
             Authors = SplitValues(latest.Authors).ToList(),
             Description = latest.Description ?? latest.Summary ?? string.Empty,
-            IconUrl = latest.IconUrl?.ToString() ?? string.Empty,
+            IconUrl = iconUrlOverride ?? latest.IconUrl?.ToString() ?? string.Empty,
             LicenseUrl = latest.LicenseUrl?.ToString() ?? string.Empty,
             ProjectUrl = latest.ProjectUrl?.ToString() ?? string.Empty,
             Registration = string.Empty,
