@@ -2,7 +2,7 @@
 
 ✅ Enhance your Visual Studio Code experience with the Can NuGet Gallery extension. Streamlining the process of managing NuGet packages, it makes installation, updating, and uninstallation efficient and user-friendly.
 
-This extension is an MIT-licensed fork of [pcislo/vscode-nuget-gallery](https://github.com/pcislo/vscode-nuget-gallery), customized and published under the `canacar` publisher.
+This extension is an MIT-licensed fork of [pcislo/vscode-nuget-manager](https://github.com/pcislo/vscode-nuget-manager), customized and published under the `canacar` publisher.
 
 <p align="center" width="100%">
     <img width="1200" src="docs/images/run_extension.gif">

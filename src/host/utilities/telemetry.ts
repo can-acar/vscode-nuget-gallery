@@ -24,7 +24,7 @@ export default class Telemetry implements Disposable {
 
     this.provider = new BasicTracerProvider({
       resource: new Resource({
-        [SEMRESATTRS_SERVICE_NAME]: "canacar-nuget-gallery",
+        [SEMRESATTRS_SERVICE_NAME]: "vscode-nuget-manager",
         [SEMRESATTRS_SERVICE_VERSION]: context.extension.packageJSON.version,
         [SEMRESATTRS_DEPLOYMENT_ENVIRONMENT]: process.env.ENVIRONMENT,
         [SEMRESATTRS_DEVICE_ID]: vscode.env.machineId,

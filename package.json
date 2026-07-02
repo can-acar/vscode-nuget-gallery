@@ -1,8 +1,8 @@
 {
-  "name": "canacar-nuget-gallery",
-  "displayName": "Can NuGet Gallery",
+  "name": "vscode-nuget-manager",
+  "displayName": "VS Code NuGet Manager",
   "publisher": "canacar",
-  "description": "Can NuGet Gallery streamlines installing, updating, and uninstalling NuGet packages in Visual Studio Code.",
+  "description": "VS Code NuGet Manager streamlines installing, updating, and uninstalling NuGet packages in Visual Studio Code.",
   "version": "1.0.0",
   "author": "can acar",
   "license": "MIT",
@@ -14,23 +14,23 @@
     "Other"
   ],
   "bugs": {
-    "url": "https://github.com/can-acar/vscode-nuget-gallery/issues"
+    "url": "https://github.com/can-acar/vscode-nuget-manager/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/can-acar/vscode-nuget-gallery.git"
+    "url": "https://github.com/can-acar/vscode-nuget-manager.git"
   },
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "canacar-nuget-gallery.openSettings",
+        "command": "vscode-nuget-manager.openSettings",
         "title": "Settings",
         "icon": "$(extensions-manage)"
       },
       {
-        "command": "canacar-nuget-gallery.reportProblem",
+        "command": "vscode-nuget-manager.reportProblem",
         "title": "Report Problem",
         "icon": "$(report)"
       }
@@ -38,13 +38,13 @@
     "menus": {
       "view/title": [
         {
-          "command": "canacar-nuget-gallery.reportProblem",
-          "when": "view == canacar.nuget.gallery.view",
+          "command": "vscode-nuget-manager.reportProblem",
+          "when": "view == vscode.nuget.gallery.view",
           "group": "navigation@1"
         },
         {
-          "command": "canacar-nuget-gallery.openSettings",
-          "when": "view == canacar.nuget.gallery.view",
+          "command": "vscode-nuget-manager.openSettings",
+          "when": "view == vscode.nuget.gallery.view",
           "group": "navigation@2"
         }
       ]
@@ -68,7 +68,7 @@
       ]
     },
     "configuration": {
-      "title": "Can NuGet Gallery",
+      "title": "VS Code NuGet Manager Settings",
       "properties": {
         "CanNugetGallery.skipRestore": {
           "type": "boolean",

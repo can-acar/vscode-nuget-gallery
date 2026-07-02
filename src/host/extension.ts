@@ -48,14 +48,14 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("canacar-nuget-gallery.openSettings", async () => {
+    vscode.commands.registerCommand("vscode-nuget-manager.openSettings", async () => {
       await mediator?.PublishAsync<ShowSettingsRequest, ShowSettingsResponse>(SHOW_SETTINGS, {});
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("canacar-nuget-gallery.reportProblem", async () => {
+    vscode.commands.registerCommand("vscode-nuget-manager.reportProblem", async () => {
       vscode.env.openExternal(
-        vscode.Uri.parse("https://github.com/can-acar/vscode-nuget-gallery/issues/new")
+        vscode.Uri.parse("https://github.com/can-acar/vscode-nuget-manager/issues/new")
       );
     })
   );
@@ -101,7 +101,7 @@ class NugetViewProvider implements vscode.WebviewViewProvider {
 		  <title>Can NuGet Gallery</title>
 		</head>
 		<body>
-		  <canacar-nuget-gallery></canacar-nuget-gallery>
+		  <vscode-nuget-manager></vscode-nuget-manager>
 		  <script type="module" nonce="${nonceValue}" src="${webJsSrc}"></script>
 		</body>
 	  </html>

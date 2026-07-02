@@ -19,7 +19,7 @@ export default class UpdateProject implements IRequestHandler<UpdateProjectReque
     let task = new vscode.Task(
       { type: "dotnet", task: `dotnet add/remove package` },
       vscode.TaskScope.Workspace,
-      "canacar-nuget-gallery",
+      "vscode-nuget-manager",
       "dotnet",
       new vscode.ShellExecution("dotnet", args)
     );

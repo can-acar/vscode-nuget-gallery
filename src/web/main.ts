@@ -134,7 +134,7 @@ const styles = css`
 `;
 
 @customElement({
-  name: "canacar-nuget-gallery",
+  name: "vscode-nuget-manager",
   template,
   styles,
 })
