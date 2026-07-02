@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>CanNugetGallery.ProtocolHost</AssemblyName>
     <RootNamespace>CanNugetGallery.ProtocolHost</RootNamespace>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
 
   <ItemGroup>

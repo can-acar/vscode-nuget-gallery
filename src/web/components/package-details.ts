@@ -14,38 +14,39 @@ import { PackageViewModel } from "../types";
 import codicon from "@/web/styles/codicon.css";
 import { IMediator } from "../registrations";
 import { GET_PACKAGE_DETAILS } from "@/common/messaging/core/commands";
+import { t } from "../i18n";
 
 const template = html<PackageDetailsComponent>`
-  <expandable-container title="Info" summary=${(x) => x.package?.Description}>
+  <expandable-container title=${() => t("info")} summary=${(x) => x.package?.Description}>
     <div class="package-details">
-      <span class="title">Author(s):</span>
+      <span class="title">${() => t("authors")}</span>
       <span>${(x) => x.package?.Authors}</span>
 
       ${when(
         (x) => x.package?.LicenseUrl,
         html<PackageDetailsComponent>`
-          <span class="title">License:</span>
-          <vscode-link href=${(x) => x.package?.LicenseUrl}>View License</vscode-link>
+          <span class="title">${() => t("license")}</span>
+          <vscode-link href=${(x) => x.package?.LicenseUrl}>${() => t("viewLicense")}</vscode-link>
         `
       )}
       ${when(
         (x) => x.package?.ProjectUrl,
         html<PackageDetailsComponent>`
-          <span class="title">Project Url:</span>
-          <vscode-link href=${(x) => x.package?.ProjectUrl}>View Project</vscode-link>
+          <span class="title">${() => t("projectUrl")}</span>
+          <vscode-link href=${(x) => x.package?.ProjectUrl}>${() => t("viewProject")}</vscode-link>
         `
       )}
       ${when(
         (x) => x.package?.Tags,
         html<PackageDetailsComponent>`
-          <span class="title">Tags:</span>
+          <span class="title">${() => t("tags")}</span>
           <span>${(x) => x.package?.Tags}</span>
         `
       )}
     </div>
   </expandable-container>
 
-  <expandable-container title="Dependencies">
+  <expandable-container title=${() => t("dependencies")}>
     ${when(
       (x) => x.packageDetailsLoading,
       html<PackageDetailsComponent>`<vscode-progress-ring class="loader"></vscode-progress-ring>`,
@@ -75,7 +76,7 @@ const template = html<PackageDetailsComponent>`
           `,
           html<PackageDetailsComponent>`<div class="no-dependencies">
             <span class="codicon codicon-info"></span>
-            <span> No dependencies</span>
+            <span> ${(x) => t("noDependencies")}</span>
           </div>`
         )}
       </div>`

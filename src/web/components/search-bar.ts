@@ -4,6 +4,7 @@ import codicon from "@/web/styles/codicon.css";
 import { Configuration } from "../registrations";
 import lodash from "lodash";
 import { ProjectViewModel } from "../types";
+import { t } from "../i18n";
 
 const template = html<SearchBar>`
   <div class="search-bar">
@@ -25,7 +26,7 @@ const template = html<SearchBar>`
         @change=${(x, c) =>
           x.SelectProject((c.event.target as HTMLInputElement).value)}
       >
-        <vscode-option value="">All</vscode-option>
+        <vscode-option value="">${() => t("allProjects")}</vscode-option>
         ${repeat(
           (x) => x.projects,
           html<ProjectViewModel>`
@@ -45,7 +46,7 @@ const template = html<SearchBar>`
       <vscode-checkbox
         :checked="${(x) => x.prerelase}"
         @change=${(x, c) => x.PrerelaseChangedEvent(c.event.target!)}
-        >Prerelease</vscode-checkbox
+        >${() => t("prerelease")}</vscode-checkbox
       >
     </div>
   </div>

@@ -28,6 +28,7 @@ import {
 } from "../types";
 import { FilterEvent } from "./search-bar";
 import { compareNuGetVersions } from "../utilities/nuget-version";
+import { t } from "../i18n";
 
 const template = html<PackagesView>`
   <div class="container">
@@ -42,8 +43,8 @@ const template = html<PackagesView>`
           x.UpdatePackagesFilters((e.event as CustomEvent<FilterEvent>).detail)}
       ></search-bar>
       <vscode-panels class="tabs" aria-label="Default">
-        <vscode-panel-tab class="tab" id="tab-1">BROWSE</vscode-panel-tab>
-        <vscode-panel-tab class="tab" id="tab-2">INSTALLED</vscode-panel-tab>
+        <vscode-panel-tab class="tab" id="tab-1">${() => t("browse")}</vscode-panel-tab>
+        <vscode-panel-tab class="tab" id="tab-2">${() => t("installed")}</vscode-panel-tab>
         <vscode-panel-view class="views" id="view-1">
           <div
             class="packages-container"
@@ -72,8 +73,7 @@ const template = html<PackagesView>`
                 )}
               `,
               html<PackagesView>`<div class="error">
-                <span class="codicon codicon-error"></span> Failed to fetch
-                packages. See 'Webview Developer Tools' for more details
+                <span class="codicon codicon-error"></span> ${() => t("failedFetchPackages")}
               </div> `
             )}
           </div>
@@ -211,7 +211,7 @@ const template = html<PackagesView>`
                     )}
                   `,
                   html<PackagesView>`<div class="no-projects">
-                    <span class="codicon codicon-info"></span> No projects found
+                    <span class="codicon codicon-info"></span> ${() => t("noProjects")}
                   </div>`
                 )}
               </div>
@@ -222,8 +222,7 @@ const template = html<PackagesView>`
                 class="loader packages-details-loader "
               ></vscode-progress-ring>`,
               html<PackagesView>`<div class="error">
-                <span class="codicon codicon-error"></span> Failed to fetch the
-                package from the selected registry.
+                <span class="codicon codicon-error"></span> ${() => t("failedFetchPackage")}
               </div> `
             )}`
           )}

@@ -14,6 +14,7 @@ import {
 } from "@vscode/webview-ui-toolkit";
 
 import { FASTElement, customElement, html, css, when } from "@microsoft/fast-element";
+import { t } from "./i18n";
 
 import { PackagesView } from "./components/packages-view";
 import { PackageRow } from "./components/package-row";
@@ -62,14 +63,14 @@ const template = html<VSCodeNuGetGallery>`
                 class="tab ${(x) => (x.router.CurrentRoute == "BROWSE" ? "active" : "")}"
                 @click=${(x) => x.router.Navigate("BROWSE")}
               >
-                Packages
+                ${(x) => t("packages")}
               </button>
               <button
                 type="button"
                 class="tab ${(x) => (x.router.CurrentRoute == "SOURCES" ? "active" : "")}"
                 @click=${(x) => x.router.Navigate("SOURCES")}
               >
-                Sources
+                ${(x) => t("sources")}
               </button>
             </nav>
             <div class="view">

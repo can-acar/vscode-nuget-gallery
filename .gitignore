@@ -3,3 +3,7 @@ node_modules
 .vscode-test/
 *.vsix
 dist
+bin/
+obj/
+**/bin/
+**/obj/

@@ -1,0 +1,10 @@
+{
+  "extension.displayName": "VS Code NuGet Manager",
+  "extension.description": "VS Code NuGet Manager streamlines installing, updating, and uninstalling NuGet packages in Visual Studio Code.",
+  "command.openSettings": "Settings",
+  "command.reportProblem": "Report Problem",
+  "configuration.title": "VS Code NuGet Manager Settings",
+  "configuration.skipRestore": "Skip performing a restore preview and compatibility check",
+  "configuration.credentialProviderFolder": "Folder containing CredentialProvider.Microsoft",
+  "configuration.sources": "NuGet sources"
+}

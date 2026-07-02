@@ -1,0 +1,10 @@
+{
+  "extension.displayName": "VS Code NuGet Manager",
+  "extension.description": "Visual Studio Code icinde NuGet paketlerini kurmayi, guncellemeyi ve kaldirmayi kolaylastirir.",
+  "command.openSettings": "Ayarlar",
+  "command.reportProblem": "Sorun Bildir",
+  "configuration.title": "VS Code NuGet Manager Ayarlari",
+  "configuration.skipRestore": "Restore preview ve uyumluluk kontrolunu atla",
+  "configuration.credentialProviderFolder": "CredentialProvider.Microsoft iceren klasor",
+  "configuration.sources": "NuGet kaynaklari"
+}

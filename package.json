@@ -1,9 +1,9 @@
 {
   "name": "vscode-nuget-manager",
-  "displayName": "VS Code NuGet Manager",
+  "displayName": "%extension.displayName%",
   "publisher": "canacar",
-  "description": "VS Code NuGet Manager streamlines installing, updating, and uninstalling NuGet packages in Visual Studio Code.",
-  "version": "1.0.0",
+  "description": "%extension.description%",
+  "version": "1.0.1",
   "author": "can acar",
   "license": "MIT",
   "icon": "docs/images/icon.png",
@@ -24,16 +24,16 @@
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "vscode-nuget-manager.openSettings",
-        "title": "Settings",
-        "icon": "$(extensions-manage)"
-      },
-      {
-        "command": "vscode-nuget-manager.reportProblem",
-        "title": "Report Problem",
-        "icon": "$(report)"
-      }
+        {
+          "command": "vscode-nuget-manager.openSettings",
+          "title": "%command.openSettings%",
+          "icon": "$(extensions-manage)"
+        },
+        {
+          "command": "vscode-nuget-manager.reportProblem",
+          "title": "%command.reportProblem%",
+          "icon": "$(report)"
+        }
     ],
     "menus": {
       "view/title": [
@@ -68,17 +68,17 @@
       ]
     },
     "configuration": {
-      "title": "VS Code NuGet Manager Settings",
+      "title": "%configuration.title%",
       "properties": {
         "CanNugetGallery.skipRestore": {
           "type": "boolean",
           "default": "false",
-          "description": "Skip performing a restore preview and compatibility check"
+          "description": "%configuration.skipRestore%"
         },
         "CanNugetGallery.credentialProviderFolder": {
           "type": "string",
           "default": "{user-profile}/.nuget/plugins/netcore/CredentialProvider.Microsoft",
-          "description": "Folder containing CredentialProvider.Microsoft"
+          "description": "%configuration.credentialProviderFolder%"
         },
         "CanNugetGallery.sources": {
           "type": "array",
@@ -90,7 +90,7 @@
           "default": [
             "{\"name\": \"nuget.org\",\"url\": \"https://api.nuget.org/v3/index.json\"}"
           ],
-          "description": "NuGet sources"
+          "description": "%configuration.sources%"
         }
       }
     }

@@ -14,14 +14,15 @@ import codicon from "@/web/styles/codicon.css";
 import { scrollableBase } from "@/web/styles/base.css";
 import { Configuration, IMediator } from "../registrations";
 import { SourceViewModel } from "../types";
+import { t } from "../i18n";
 
 const template = html<SourcesView>`
   <div class="sources-view">
     <div class="toolbar">
       <vscode-button
         appearance="icon"
-        title="Add source"
-        aria-label="Add source"
+        title=${() => t("addSource")}
+        aria-label=${() => t("addSource")}
         ?disabled=${(x) => x.newSource != null}
         @click=${(x) => x.AddSourceRow()}
       >
@@ -34,9 +35,9 @@ const template = html<SourcesView>`
     </div>
 
     <div class="sources-grid">
-      <div class="grid-header">Name</div>
-      <div class="grid-header">URL</div>
-      <div class="grid-header actions-header">Actions</div>
+      <div class="grid-header">${() => t("sourceName")}</div>
+      <div class="grid-header">${() => t("sourceUrl")}</div>
+      <div class="grid-header actions-header">${() => t("sourceActions")}</div>
       ${repeat(
         (x) => x.sources,
         html<SourceViewModel>`
@@ -60,8 +61,8 @@ const template = html<SourcesView>`
               <div class="row-actions">
                 <vscode-button
                   appearance="icon"
-                  title="Save source"
-                  aria-label="Save source"
+                  title=${() => t("saveSource")}
+                  aria-label=${() => t("saveSource")}
                   @click=${(x, c: ExecutionContext<SourcesView, any>) =>
                     c.parent.SaveRow(x)}
                 >
@@ -69,8 +70,8 @@ const template = html<SourcesView>`
                 </vscode-button>
                 <vscode-button
                   appearance="icon"
-                  title="Cancel"
-                  aria-label="Cancel"
+                  title=${() => t("cancel")}
+                  aria-label=${() => t("cancel")}
                   @click=${(x, c: ExecutionContext<SourcesView, any>) =>
                     c.parent.CancelRow(x)}
                 >
@@ -85,8 +86,8 @@ const template = html<SourcesView>`
                   (x) => !x.Editable,
                   html<SourceViewModel>`<span
                     class="origin-badge"
-                    title="Managed by nuget.config"
-                    >nuget.config</span
+                    title=${() => t("managedByNugetConfig")}
+                    >${() => t("nugetConfig")}</span
                   >`
                 )}
               </div>
@@ -97,8 +98,8 @@ const template = html<SourcesView>`
                   html<SourceViewModel>`
                     <vscode-button
                       appearance="icon"
-                      title="Edit source"
-                      aria-label="Edit source"
+                      title=${() => t("editSource")}
+                      aria-label=${() => t("editSource")}
                       @click=${(x, c: ExecutionContext<SourcesView, any>) =>
                         c.parent.EditRow(x)}
                     >
@@ -106,8 +107,8 @@ const template = html<SourcesView>`
                     </vscode-button>
                     <vscode-button
                       appearance="icon"
-                      title="Remove source"
-                      aria-label="Remove source"
+                      title=${() => t("removeSource")}
+                      aria-label=${() => t("removeSource")}
                       @click=${(x, c: ExecutionContext<SourcesView, any>) =>
                         c.parent.RemoveRow(x)}
                     >
@@ -290,7 +291,7 @@ export class SourcesView extends FASTElement {
     source.DraftName = source.DraftName.trim();
     source.DraftUrl = source.DraftUrl.trim();
     if (source.DraftName == "" || source.DraftUrl == "") {
-      this.validationMessage = "Name and URL are required.";
+      this.validationMessage = t("sourceValidation");
       return;
     }
 
