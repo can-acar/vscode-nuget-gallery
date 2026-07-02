@@ -14,6 +14,7 @@ import { IMediator } from "../registrations";
 import { UPDATE_PROJECT } from "@/common/messaging/core/commands";
 import { ProjectPackageViewModel, ProjectViewModel } from "../types";
 import ObservableDictionary from "../utilities/ObservableDictionary";
+import { compareNuGetVersions } from "../utilities/nuget-version";
 
 const template = html<ProjectRow>`
   <div class="project-row">
@@ -31,7 +32,8 @@ const template = html<ProjectRow>`
             html<ProjectRow>`
               ${when(
                 (x) =>
-                  x.ProjectPackage?.Version != x.packageVersion &&
+                  x.ProjectPackage?.CanUpdate &&
+                  compareNuGetVersions(x.packageVersion, x.ProjectPackage?.Version) > 0 &&
                   x.ProjectPackage?.Version != undefined,
                 html<ProjectRow>`
                   <vscode-button appearance="icon">
@@ -111,6 +113,7 @@ export class ProjectRow extends FASTElement {
   @attr project!: ProjectViewModel;
   @attr packageId!: string;
   @attr packageVersion!: string;
+  @attr source!: string;
   @observable loaders: ObservableDictionary<boolean> = new ObservableDictionary<boolean>();
 
   @volatile
@@ -124,6 +127,7 @@ export class ProjectRow extends FASTElement {
       Type: type,
       ProjectPath: this.project.Path,
       PackageId: this.packageId,
+      SourceUrl: this.source,
       Version: this.packageVersion,
     };
     this.loaders.Add(request.PackageId, true);

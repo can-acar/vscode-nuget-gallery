@@ -24,10 +24,13 @@ import Telemetry from "./utilities/telemetry";
 import OpenUrl from "./handlers/open-url";
 import { GetPackageDetails } from "./handlers/get-package-details";
 import { GetPackage } from "./handlers/get-package";
+import protocolHostClient from "./nuget/protocol-host-client";
 
 let mediator: IMediator;
 
 export function activate(context: vscode.ExtensionContext) {
+  protocolHostClient.Initialize(context.extensionPath);
+
   const provider = new NugetViewProvider(context.extensionUri);
   const telemetry = new Telemetry(context);
   telemetry.sendEvent("activated");

@@ -89,10 +89,18 @@ export class ProjectViewModel {
 export class ProjectPackageViewModel {
   Id: string;
   Version: string;
+  VersionSource: ProjectPackageVersionSource;
+  CentralVersionPath?: string;
+  CanUpdate: boolean;
+  UpdateBlockedReason?: string;
 
   constructor(model: ProjectPackage) {
     this.Id = model.Id;
     this.Version = model.Version;
+    this.VersionSource = model.VersionSource ?? "project";
+    this.CentralVersionPath = model.CentralVersionPath;
+    this.CanUpdate = model.CanUpdate !== false;
+    this.UpdateBlockedReason = model.UpdateBlockedReason;
   }
 }
 

@@ -6,7 +6,7 @@ export class GetPackage implements IRequestHandler<GetPackageRequest, GetPackage
   async HandleAsync(request: GetPackageRequest): Promise<GetPackageResponse> {
     let api = await nugetApiFactory.GetSourceApi(request.Url);
     try {
-      let packageResult = await api.GetPackageAsync(request.Id);
+      let packageResult = await api.GetPackageAsync(request.Id, request.Prerelease ?? true);
 
       if (packageResult.isError) {
         return {

@@ -36,7 +36,13 @@ type PackageDependency = {
 type ProjectPackage = {
   Id: string;
   Version: string;
+  VersionSource?: ProjectPackageVersionSource;
+  CentralVersionPath?: string;
+  CanUpdate?: boolean;
+  UpdateBlockedReason?: string;
 };
+
+type ProjectPackageVersionSource = "project" | "central" | "override" | "missing";
 
 type Project = {
   Name: string;

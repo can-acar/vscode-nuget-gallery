@@ -1,6 +1,6 @@
 import { IRequestHandler } from "@/common/messaging/core/types";
 import * as vscode from "vscode";
-import NuGetConfigParser from "../utilities/nuget-config-parser";
+import protocolHostClient from "../nuget/protocol-host-client";
 
 export default class GetConfiguration implements IRequestHandler<GetConfigurationRequest, GetConfigurationResponse> {
   async HandleAsync(request: GetConfigurationRequest): Promise<GetConfigurationResponse> {
@@ -31,17 +31,12 @@ export default class GetConfiguration implements IRequestHandler<GetConfiguratio
 
     let nugetConfigSources: Array<Source> = [];
     try {
-      const parsed = await NuGetConfigParser.LoadAsync();
-      nugetConfigSources = parsed
-        .filter((x) => !x.IsDisabled)
-        .map((x) => ({
-          Name: x.Name,
-          Url: x.Url,
-          Username: x.Username,
-          Password: x.Password,
-          IsReadOnly: true,
-          Origin: "nuget-config" as SourceOrigin,
-        }));
+      nugetConfigSources = (await protocolHostClient.ListSources()).map((x) => ({
+        Name: x.Name,
+        Url: x.Url,
+        IsReadOnly: true,
+        Origin: "nuget-config" as SourceOrigin,
+      }));
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to load nuget.config sources: ${err instanceof Error ? err.message : String(err)}`);
     }

@@ -123,6 +123,8 @@ export class PackageDetailsComponent extends FASTElement {
   @IMediator mediator!: IMediator;
   @attr package: PackageViewModel | null = null;
   @attr packageVersionUrl: string = "";
+  @attr packageId: string = "";
+  @attr version: string = "";
   @attr source: string = "";
 
   @observable packageDetailsLoading: boolean = false;
@@ -136,16 +138,27 @@ export class PackageDetailsComponent extends FASTElement {
     this.ReloadDependencies();
   }
 
+  async packageIdChanged(oldValue: string, newValue: string) {
+    this.ReloadDependencies();
+  }
+
+  async versionChanged(oldValue: string, newValue: string) {
+    this.ReloadDependencies();
+  }
+
   private async ReloadDependencies() {
     this.packageDetails = undefined;
 
     if (!this.source) return;
-    if (!this.packageVersionUrl) return;
+    if (!this.packageId) return;
+    if (!this.version) return;
     this.packageDetailsLoading = true;
 
     let request: GetPackageDetailsRequest = {
       PackageVersionUrl: this.packageVersionUrl,
       SourceUrl: this.source,
+      PackageId: this.packageId,
+      Version: this.version,
     };
 
     let result = await this.mediator.PublishAsync<
@@ -153,7 +166,7 @@ export class PackageDetailsComponent extends FASTElement {
       GetPackageDetailsResponse
     >(GET_PACKAGE_DETAILS, request);
 
-    if (request.PackageVersionUrl != this.packageVersionUrl) return;
+    if (request.PackageId != this.packageId || request.Version != this.version) return;
 
     this.packageDetails = result.Package;
     this.packageDetailsLoading = false;

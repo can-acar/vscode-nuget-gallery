@@ -7,11 +7,12 @@ export class GetPackageDetails
 {
   async HandleAsync(request: GetPackageDetailsRequest): Promise<GetPackageDetailsResponse> {
     if (!request.SourceUrl) return this.GetError("SourceUrl is empty");
-    if (!request.PackageVersionUrl) return this.GetError("PackageVersionUrl is empty");
+    if (!request.PackageId) return this.GetError("PackageId is empty");
+    if (!request.Version) return this.GetError("Version is empty");
 
     let api = await nugetApiFactory.GetSourceApi(request.SourceUrl);
     try {
-      let packageDetails = await api.GetPackageDetailsAsync(request.PackageVersionUrl);
+      let packageDetails = await api.GetPackageDetailsAsync(request.PackageId, request.Version);
       let result: GetPackageDetailsResponse = {
         IsFailure: false,
         Package: packageDetails.data,

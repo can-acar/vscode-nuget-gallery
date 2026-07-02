@@ -27,6 +27,7 @@ import {
   ProjectViewModel,
 } from "../types";
 import { FilterEvent } from "./search-bar";
+import { compareNuGetVersions } from "../utilities/nuget-version";
 
 const template = html<PackagesView>`
   <div class="container">
@@ -175,6 +176,8 @@ const template = html<PackagesView>`
                 <package-details
                   :package=${(x) => x.selectedPackage}
                   :packageVersionUrl=${(x) => x.PackageVersionUrl}
+                  :packageId=${(x) => x.selectedPackage?.Name ?? ""}
+                  :version=${(x) => x.selectedVersion}
                   :source=${(x) => x.filters.SourceUrl}
                 ></package-details>
                 <div class="separator"></div>
@@ -198,6 +201,10 @@ const template = html<PackagesView>`
                             x,
                             c: ExecutionContext<PackagesView, any>
                           ) => c.parent.selectedVersion}
+                          :source=${(
+                            x,
+                            c: ExecutionContext<PackagesView, any>
+                          ) => c.parent.filters.SourceUrl}
                         >
                         </project-row>
                       `
@@ -570,7 +577,8 @@ export class PackagesView extends FASTElement {
     if (action == "UPDATE")
       return (
         projectPackage != undefined &&
-        projectPackage.Version != this.selectedVersion &&
+        projectPackage.CanUpdate &&
+        compareNuGetVersions(this.selectedVersion, projectPackage.Version) > 0 &&
         projectPackage.Version != undefined
       );
 
@@ -601,6 +609,7 @@ export class PackagesView extends FASTElement {
           Type: updateType,
           ProjectPath: project.Path,
           PackageId: packageId,
+          SourceUrl: this.filters.SourceUrl,
         };
 
         if (updateType != "UNINSTALL") request.Version = packageVersion;
@@ -682,6 +691,7 @@ export class PackagesView extends FASTElement {
     >(GET_PACKAGE, {
       Id: projectPackage.Id,
       Url: this.filters.SourceUrl,
+      Prerelease: this.filters.Prerelease,
     });
 
     if (result.IsFailure || !result.Package) {
@@ -716,6 +726,7 @@ export class PackagesView extends FASTElement {
       >(GET_PACKAGE, {
         Id: packageToUpdate.Id,
         Url: this.filters.SourceUrl,
+        Prerelease: this.filters.Prerelease,
       });
 
       if (result.IsFailure || !result.Package) {

@@ -1,4 +1,5 @@
 const { build } = require("esbuild");
+const { spawnSync } = require("child_process");
 
 const baseConfig = {
   bundle: true,
@@ -42,6 +43,24 @@ const webConfig = {
     for (const config of buildConfigs) {
       await build(config);
     }
+
+    const protocolHostBuild = spawnSync(
+      "dotnet",
+      [
+        "publish",
+        "./src/protocol-host/CanNugetGallery.ProtocolHost.csproj",
+        "-c",
+        "Release",
+        "-o",
+        "./dist/protocol-host",
+        "--nologo",
+      ],
+      { stdio: "inherit" }
+    );
+    if (protocolHostBuild.status !== 0) {
+      process.exit(protocolHostBuild.status ?? 1);
+    }
+
     console.log("build complete");
   } catch (err) {
     process.stderr.write(err.stderr);
