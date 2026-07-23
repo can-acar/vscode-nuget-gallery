@@ -5,44 +5,46 @@ All notable changes to the "vscode-nuget-manager" extension will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.6]
+This project is a fork of [pcislo/vscode-nuget-gallery](https://github.com/pcislo/vscode-nuget-gallery), forked at upstream version 1.2.6. For changes prior to the fork, see the upstream changelog.
+
+## [Unreleased]
 
 ### Added
 
-- Read package sources from workspace and global `nuget.config` files
-- Apply credentials stored under `<packageSourceCredentials>` (`ClearTextPassword`) automatically when calling private feeds
+- Search packages across all configured sources at once
+- Support for embedded package icons
 
-## [1.2.5]
+### Changed
 
-### Fix
+- Refined package search behaviour and action buttons
+- `vscode:prepublish` now always produces a minified production build
 
-- Fix fetching PackageDetails
+### Fixed
 
-## [1.2.4]
+- "Settings" and "Report Problem" buttons now appear in the NuGet panel title bar
+- `skipRestore` no longer skips restore by default on fresh installs (the setting defaulted to a truthy string)
+- Repository and issue-reporting links now point to the actual GitHub repository
 
-### Fix
+### Removed
 
-- Fix `Installed` tab error for Windows
+- Telemetry (OpenTelemetry / New Relic trace export inherited from upstream)
 
-## [1.2.3]
-
-### Fix
-
-- Respect proxy settings when making requests to repository endpoints
-- Changed error handling to correctly log AxiosErrors
-- Missing package versions
+## [1.0.1]
 
 ### Added
 
-- Package info and dependencies
-- Option to skip restore when adding package
+- .NET protocol host for NuGet feed queries (source discovery, search, package details)
+- Webview localization (English, Turkish)
 
-## [1.1.0]
+### Changed
 
-### Added
-
-- Package info and dependencies
+- Rebranded the extension to "VS Code NuGet Manager"
 
 ## [1.0.0]
 
-- Initial release
+Initial release of the fork, based on upstream version 1.2.6.
+
+### Added
+
+- Redesigned gallery UI
+- Project-scoped package actions and per-project dropdown

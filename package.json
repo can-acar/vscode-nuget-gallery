@@ -14,11 +14,11 @@
     "Other"
   ],
   "bugs": {
-    "url": "https://github.com/can-acar/vscode-nuget-manager/issues"
+    "url": "https://github.com/can-acar/vscode-nuget-gallery/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/can-acar/vscode-nuget-manager.git"
+    "url": "https://github.com/can-acar/vscode-nuget-gallery.git"
   },
   "activationEvents": [],
   "main": "./dist/extension.js",
@@ -39,12 +39,12 @@
       "view/title": [
         {
           "command": "vscode-nuget-manager.reportProblem",
-          "when": "view == vscode.nuget.gallery.view",
+          "when": "view == canacar.nuget.gallery.view",
           "group": "navigation@1"
         },
         {
           "command": "vscode-nuget-manager.openSettings",
-          "when": "view == vscode.nuget.gallery.view",
+          "when": "view == canacar.nuget.gallery.view",
           "group": "navigation@2"
         }
       ]
@@ -72,7 +72,7 @@
       "properties": {
         "CanNugetGallery.skipRestore": {
           "type": "boolean",
-          "default": "false",
+          "default": false,
           "description": "%configuration.skipRestore%"
         },
         "CanNugetGallery.credentialProviderFolder": {
@@ -96,7 +96,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "node ./esbuild.js",
+    "vscode:prepublish": "node ./esbuild.js --production",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
     "esbuild": "node ./esbuild.js",
@@ -120,8 +120,6 @@
   },
   "dependencies": {
     "@microsoft/fast-element": "^1.12.0",
-    "@opentelemetry/api": "^1.8.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.51.1",
     "@vscode/webview-ui-toolkit": "^1.4.0",
     "@xmldom/xmldom": "^0.8.10",
     "async-mutex": "^0.5.0",

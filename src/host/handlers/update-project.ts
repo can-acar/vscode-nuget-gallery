@@ -5,7 +5,7 @@ import TaskExecutor from "../utilities/task-executor";
 
 export default class UpdateProject implements IRequestHandler<UpdateProjectRequest, UpdateProjectResponse> {
   async HandleAsync(request: UpdateProjectRequest): Promise<UpdateProjectResponse> {
-    let skipRestore = vscode.workspace.getConfiguration("CanNugetGallery").get<string>("skipRestore") ?? "";
+    let skipRestore = vscode.workspace.getConfiguration("CanNugetGallery").get<boolean>("skipRestore") ?? false;
 
     if (request.Type !== "UNINSTALL" && request.Version) {
       let project = ProjectParser.Parse(request.ProjectPath);

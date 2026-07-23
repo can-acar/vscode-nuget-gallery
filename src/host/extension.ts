@@ -20,7 +20,6 @@ import { GetPackages } from "./handlers/get-packages";
 import UpdateProject from "./handlers/update-project";
 import GetConfiguration from "./handlers/get-configuration";
 import UpdateConfiguration from "./handlers/update-configuration";
-import Telemetry from "./utilities/telemetry";
 import OpenUrl from "./handlers/open-url";
 import { GetPackageDetails } from "./handlers/get-package-details";
 import { GetPackage } from "./handlers/get-package";
@@ -32,17 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
   protocolHostClient.Initialize(context.extensionPath);
 
   const provider = new NugetViewProvider(context.extensionUri);
-  const telemetry = new Telemetry(context);
-  telemetry.sendEvent("activated");
 
-  let previousVersion: string | undefined = context.globalState.get("CanNugetGallery.version");
-  context.globalState.update("CanNugetGallery.version", context.extension.packageJSON.version);
-  if (previousVersion == undefined) {
-    telemetry.sendEvent("installed");
-  } else if (previousVersion != context.extension.packageJSON.version)
-    telemetry.sendEvent("upgraded", { fromVersion: previousVersion });
-
-  context.subscriptions.push(telemetry);
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider("canacar.nuget.gallery.view", provider, {
       webviewOptions: {
@@ -58,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("vscode-nuget-manager.reportProblem", async () => {
       vscode.env.openExternal(
-        vscode.Uri.parse("https://github.com/can-acar/vscode-nuget-manager/issues/new")
+        vscode.Uri.parse("https://github.com/can-acar/vscode-nuget-gallery/issues/new")
       );
     })
   );
@@ -101,7 +90,7 @@ class NugetViewProvider implements vscode.WebviewViewProvider {
       <meta name="viewport" content="width=device-width,initial-scale=1.0">
       <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-${nonceValue}';">
       <link rel="stylesheet" type="text/css" href="${webCssSrc}"/>
-		  <title>Can NuGet Gallery</title>
+		  <title>VS Code NuGet Manager</title>
 		</head>
 		<body>
 		  <vscode-nuget-manager></vscode-nuget-manager>

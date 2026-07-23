@@ -1,14 +1,13 @@
 const { build } = require("esbuild");
 const { spawnSync } = require("child_process");
 
+const isProduction =
+  process.env.NODE_ENV === "production" || process.argv.includes("--production");
+
 const baseConfig = {
   bundle: true,
-  minify: process.env.NODE_ENV === "production",
-  sourcemap: process.env.NODE_ENV !== "production",
-  define: {
-    "process.env.NEW_RELIC_API_KEY": JSON.stringify(process.env.NEW_RELIC_API_KEY ?? ""),
-    "process.env.ENVIRONMENT": JSON.stringify(process.env.ENVIRONMENT ?? "debugging"),
-  },
+  minify: isProduction,
+  sourcemap: !isProduction,
   loader: {
     ".png": "dataurl",
     ".woff": "dataurl",
